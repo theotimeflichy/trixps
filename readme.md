@@ -28,3 +28,19 @@ docker compose run --rm -it producer --brokers broker1:9001,broker2:9002,broker3
 ```bash
 docker compose run --rm producer --brokers broker1:9001,broker2:9002,broker3:9003 --status
 ```
+
+### Start web app
+A test app has been created, a Tic-Tac-Toe game in order to see a real use of the server.
+```bash
+cd deployment
+docker compose --profile demo up --build -d
+```
+
+### How to stop everything
+```bash
+docker compose down -v
+```
+
+### Branch
+- Production branch = main
+- Pre-production branch = dev
