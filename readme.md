@@ -2,7 +2,9 @@
 
 TrixPS is a distributed pubsub server.
 Writen in Go.
-Deployed using Docker
+Deployed using Docker.
+
+You can find the report in ./report.md
 
 ## How to run
 
