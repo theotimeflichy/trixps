@@ -1,0 +1,74 @@
+# definition of broker for re-used context
+x-broker: &broker-defaults
+  image: trixps:latest
+  build:
+    context: ..
+    dockerfile: deployment/Dockerfile
+  restart: unless-stopped
+
+# def of apps (broker[1|2|3], producer, consumer, api))
+services:
+  broker1:
+    <<: *broker-defaults
+    hostname: broker1
+    command: ["broker","--id=b1",
+              "--raft-addr=broker1:7001","--rpc-addr=broker1:9001",
+              "--peers=b1@broker1:7001@broker1:9001,b2@broker2:7002@broker2:9002,b3@broker3:7003@broker3:9003",
+              "--data-dir=/data","--partitions=2","--bootstrap"]
+    volumes: ["vol1:/data"]
+    ports: ["9001:9001"]
+
+  broker2:
+    <<: *broker-defaults
+    hostname: broker2
+    command: ["broker","--id=b2",
+              "--raft-addr=broker2:7002","--rpc-addr=broker2:9002",
+              "--peers=b1@broker1:7001@broker1:9001,b2@broker2:7002@broker2:9002,b3@broker3:7003@broker3:9003",
+              "--data-dir=/data","--partitions=2"]
+    volumes: ["vol2:/data"]
+    ports: ["9002:9002"]
+
+  broker3:
+    <<: *broker-defaults
+    hostname: broker3
+    command: ["broker","--id=b3",
+              "--raft-addr=broker3:7003","--rpc-addr=broker3:9003",
+              "--peers=b1@broker1:7001@broker1:9001,b2@broker2:7002@broker2:9002,b3@broker3:7003@broker3:9003",
+              "--data-dir=/data","--partitions=2"]
+    volumes: ["vol3:/data"]
+    ports: ["9003:9003"]
+
+  producer:
+    <<: *broker-defaults
+    profiles: ["tools"]
+    entrypoint: ["producer"]
+    command: ["--help"]
+
+  consumer:
+    <<: *broker-defaults
+    profiles: ["tools"]
+    entrypoint: ["consumer"]
+    command: ["--help"]
+
+  api:
+    <<: *broker-defaults
+    profiles: ["demo"]
+    entrypoint: ["api"]
+    command: ["--brokers","broker1:9001,broker2:9002,broker3:9003","--listen",":8080"]
+    ports: ["8080:8080"]
+    depends_on: ["broker1"]
+
+  web:
+    profiles: ["demo"]
+    build:
+      context: ../example/web
+    environment:
+      NEXT_PUBLIC_API_URL: "http://localhost:8080"
+    ports: ["3000:3000"]
+    depends_on: ["api"]
+
+# def of volumes for each brokers
+volumes:
+  vol1: {}
+  vol2: {}
+  vol3: {}

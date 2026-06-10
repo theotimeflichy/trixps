@@ -1,0 +1,201 @@
+/* Tsinghua art direction: Tsinghua purple on white, formal and minimal */
+:root {
+  --tsinghua-purple: #660874;
+  --tsinghua-purple-dark: #4d0a57;
+  --bg: #ffffff;
+  --text: #333333;
+  --muted: #767676;
+  --line: #e5e5e5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+  line-height: 1.5;
+}
+
+/* top institutional banner */
+.header {
+  background: var(--tsinghua-purple);
+  color: #ffffff;
+  padding: 16px 24px;
+}
+
+.header .wordmark {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* narrow centered content column */
+.container {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--tsinghua-purple);
+  margin: 0 0 8px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+/* form input */
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 16px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--tsinghua-purple);
+}
+
+/* primary button */
+.btn {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--tsinghua-purple);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--tsinghua-purple-dark);
+}
+
+.btn:disabled {
+  background: var(--line);
+  color: var(--muted);
+  cursor: default;
+}
+
+/* tic-tac-toe board */
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 96px);
+  grid-template-rows: repeat(3, 96px);
+  gap: 0;
+  justify-content: center;
+  margin: 24px auto;
+}
+
+.cell {
+  width: 96px;
+  height: 96px;
+  border: 2px solid var(--tsinghua-purple);
+  background: #ffffff;
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--tsinghua-purple);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cell:disabled {
+  cursor: default;
+}
+
+/* status line above the board */
+.status {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 8px 0;
+}
+
+.spinner {
+  margin: 24px 0;
+  color: var(--muted);
+}
+
+/* terminal-style console pinned at the bottom of the viewport */
+.console {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  border-top: 2px solid var(--tsinghua-purple);
+  background: #0d1117;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+/* the header is the open/close toggle (full width button) */
+.console-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  color: #c9d1d9;
+  background: #161b22;
+  border: none;
+  border-bottom: 1px solid #21262d;
+  cursor: pointer;
+}
+
+.console-bar:hover {
+  background: #1c232c;
+}
+
+.console-toggle {
+  color: #8b949e;
+}
+
+.console-body {
+  height: 200px;
+  overflow-y: auto;
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.console-line {
+  color: #8b949e;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* outgoing publish in green, incoming record in cyan */
+.console-line.out {
+  color: #3fb950;
+}
+
+.console-line.in {
+  color: #58a6ff;
+}
+
+.console-ts {
+  color: #6e7681;
+}
