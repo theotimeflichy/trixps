@@ -41,8 +41,8 @@ It stores the messages. For each partition, one broker is the leader and another
 
 #### Flow of a publish
 
-1. The producer asks a broker who is the leader of the partition.
-2. It sends the message to the leader.
+1. The producer asks a broker who is the leader of the partition (Service Discovery).
+2. It sends the message (or batch of messages) to the leader (RPC).
 3. The leader picks the next offset for the message.
 4. The leader sends the message to the follower and waits for its ack.
 5. When the follower has acked, the leader writes the message in its own log.
@@ -50,8 +50,8 @@ It stores the messages. For each partition, one broker is the leader and another
 
 #### Flow of a consume
 
-1. The consumer asks a broker who is the leader of the partition.
-2. It sends a fetch request to the leader with its current offset.
+1. The consumer asks a broker who is the leader of the partition (Service Discovery).
+2. It sends a fetch request to the leader with its current offset (RPC).
 3. The leader reads the messages from this offset in its log.
 4. The leader answers with the messages and the next offset.
 5. The consumer shows the messages and saves the next offset for later.
@@ -97,6 +97,7 @@ Leader. It keeps it's own offset to know which message has already been read.
 - **Deployment:** Docker
 
 To implement raft, it use the **`hashicorp/raft`** library.
+To interact between brokers, we use **RPC**.
 
 ## 5. Evaluation Metrics
 
