@@ -54,7 +54,7 @@ sequenceDiagram
     participant A as API Gateway
     participant B as Any Broker
     participant L as Partition Leader
-    participant F as Follower
+    participant F as Partition Follower
     U->>A: POST /publish {topic, key, value}
     Note over A: PartitionFor(key) → partition
     A->>B: RPC.Metadata (service discovery, via client)
@@ -115,7 +115,7 @@ sequenceDiagram
     participant RL as Raft Leader (controller)
     participant L as Old Partition Leader (crashed)
     participant F as Follower → New Partition Leader
-    participant NF as Surviving Broker → New Follower
+    participant NF as Surviving Broker → New Partition Follower
     Note over RL: controlLoop ticks every 1s
     RL->>L: isAlive (TCP dial, 700ms)
     L--xRL: timeout → broker down
