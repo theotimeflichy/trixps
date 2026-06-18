@@ -48,6 +48,32 @@ It stores the messages. For each partition, one broker is the leader and another
 5. When the follower has acked, the leader writes the message in its own log.
 6. The leader answers the producer with the offset.
 
+```mermaid
+sequenceDiagram
+    participant U as User (web app)
+    participant A as API Gateway
+    participant B as Any Broker
+    participant L as Partition Leader
+    participant F as Follower
+    U->>A: POST /publish {topic, key, value}
+    Note over A: PartitionFor(key) → partition
+    A->>B: RPC.Metadata (service discovery, via client)
+    B-->>A: Cluster (leader of partition)
+    A->>L: RPC.Produce(topic, part, key, value)
+    Note over L: is leader? + lock produceLock(topic,p)<br/>offset = NextOffset()
+    L->>F: RPC.FollowerState(topic, part)
+    F-->>L: NextOffset
+    opt follower is behind
+        L->>F: RPC.Replicate (backfill missing offsets)
+        F-->>L: Ack
+    end
+    L->>F: RPC.Replicate(offset, key, value, ts)
+    F-->>L: Ack
+    Note over L: only now: AppendAt(offset) in local log
+    L-->>A: Offset, Committed=true
+    A-->>U: 200 {offset, partition}
+```
+
 #### Flow of a consume
 
 1. The consumer asks a broker who is the leader of the partition (Service Discovery).
@@ -55,6 +81,24 @@ It stores the messages. For each partition, one broker is the leader and another
 3. The leader reads the messages from this offset in its log.
 4. The leader answers with the messages and the next offset.
 5. The consumer shows the messages and saves the next offset for later.
+
+```mermaid
+sequenceDiagram
+    participant U as User (web app)
+    participant A as API Gateway
+    participant B as Any Broker
+    participant L as Partition Leader
+    U->>A: GET /consume?topic&key&offset&max
+    Note over A: PartitionFor(key) → partition
+    A->>B: RPC.Metadata (service discovery, via client)
+    B-->>A: Cluster (leader of partition)
+    A->>L: RPC.Fetch(topic, part, offset, max)
+    Note over L: is leader? + ReadFrom(offset, max)
+    L-->>A: Records + NextOffset
+    A-->>U: 200 {records, nextOffset}
+```
+
+> Note: the CLI `producer` / `consumer` follow the same flow without the API layer — they call the client directly (`RPC.Metadata` then `RPC.Produce` / `RPC.Fetch`).
 
 #### Flow of a failover
 
@@ -64,6 +108,33 @@ It stores the messages. For each partition, one broker is the leader and another
 4. The new state is written to Raft and shared to all the brokers.
 5. The producers and consumers ask again who is the leader and use the new one.
 6. When a new message is produced, the follower catches up.
+
+```mermaid
+sequenceDiagram
+    participant PC as Producer / Consumer
+    participant RL as Raft Leader (controller)
+    participant L as Old Partition Leader (crashed)
+    participant F as Follower → New Leader
+    participant NF as Surviving Broker → New Follower
+    Note over RL: controlLoop ticks every 1s
+    RL->>L: isAlive (TCP dial, 700ms)
+    L--xRL: timeout → broker down
+    Note over RL: CmdMarkDown (via Raft)
+    Note over RL: leader down → promote follower (F)<br/>pick a surviving broker as new follower (NF)<br/>CmdReassignLeader (via Raft)
+    RL-->>F: new metadata: Leader=F, Follower=NF (Raft FSM)
+    RL-->>NF: new metadata: Leader=F, Follower=NF (Raft FSM)
+    PC->>L: RPC.Produce / RPC.Fetch
+    L--xPC: connection refused / error
+    Note over PC: client retry loop (≤8, sleep 1s)
+    PC->>RL: RPC.Metadata (refresh)
+    RL-->>PC: Cluster (new leader = F)
+    PC->>F: RPC.Produce / RPC.Fetch
+    opt on next produce
+        F->>NF: RPC.Replicate (backfill + new records)
+        NF-->>F: Ack
+    end
+    F-->>PC: success
+```
 
 
 ### 3.2 Producer
