@@ -114,7 +114,7 @@ sequenceDiagram
     participant PC as Producer / Consumer
     participant RL as Raft Leader (controller)
     participant L as Old Partition Leader (crashed)
-    participant F as Follower → New Leader
+    participant F as Follower → New Partition Leader
     participant NF as Surviving Broker → New Follower
     Note over RL: controlLoop ticks every 1s
     RL->>L: isAlive (TCP dial, 700ms)
@@ -127,7 +127,7 @@ sequenceDiagram
     L--xPC: connection refused / error
     Note over PC: client retry loop (≤8, sleep 1s)
     PC->>RL: RPC.Metadata (refresh)
-    RL-->>PC: Cluster (new leader = F)
+    RL-->>PC: Cluster (new partition leader = F)
     PC->>F: RPC.Produce / RPC.Fetch
     opt on next produce
         F->>NF: RPC.Replicate (backfill + new records)
