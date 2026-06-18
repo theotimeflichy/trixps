@@ -7,7 +7,7 @@
 ## 1. Introduction
 
 This project is called TrixPS. The aim is to design and implement a
-high-performance, distributed Publish-Subscribe system. The architecture is ispired
+high-performance, distributed Publish-Subscribe system. The architecture is inspired
 of Apache Kafka.
 
 ## 2. Objectives
@@ -96,7 +96,8 @@ Leader. It keeps it's own offset to know which message has already been read.
 - **Language:** Go (& Nextjs for example)
 - **Deployment:** Docker
 
-To implement raft, it use the **`hashicorp/raft`** library.
+To implement raft, it uses the **`hashicorp/raft`** library. Implementing Raft from scratch is error-prone (election, log replication and snapshotting hide many potential problems). `hashicorp/raft` is a production-proven library, so we treat consensus as a solved problem and focus our effort on the pub/sub data plane. That's how I made my choice.
+
 To interact between brokers, we use **RPC**.
 
 ## 5. Evaluation Metrics
