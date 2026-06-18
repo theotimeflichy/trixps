@@ -141,14 +141,14 @@ sequenceDiagram
 
 **Role :** To publish messages to the pub-sub app.
 
-**Logic :** It performs *Service Discovery* to find the leader. Then it send the message.
+**Logic :** It performs *Service Discovery* to find the leader. Then it sends the message.
 
 ### 3.3 Consumer
 
 **Role :** Receive and show messages from the pub-sub service.
 
 **Logic :** it subscribes to a topic and pulls messages directly from the partition
-Leader. It keeps it's own offset to know which message has already been read.
+Leader. It keeps its own offset to know which message has already been read.
 
 ### 3.4 API
 
